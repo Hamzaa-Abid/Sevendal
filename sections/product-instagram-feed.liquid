@@ -1,0 +1,47 @@
+{%- comment -%}
+  Static section for displaying an instagram feed on product pages
+{%- endcomment -%}
+
+{%- if section.settings.enabled == true %}
+  {%- include 'instagram-feed' with
+    pre_title: section.settings.pre_title,
+    title: section.settings.title,
+    button_label: section.settings.button_label,
+    button_link: section.settings.button_link
+  -%}
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Instagram feed",
+    "settings": [
+      {
+        "type":      "checkbox",
+        "id":        "enabled",
+        "label":     "Enabled",
+        "default":   true
+      },
+      {
+        "id": "pre_title",
+        "type": "text",
+        "label": "Pre-title"
+      },
+      {
+        "id": "title",
+        "type": "text",
+        "label": "Title",
+        "default": "Billboard title"
+      },
+      {
+        "id": "button_label",
+        "type": "text",
+        "label": "Button text"
+      },
+      {
+        "id": "button_link",
+        "type": "url",
+        "label": "Button link"
+      }
+    ]
+  }
+{% endschema %}

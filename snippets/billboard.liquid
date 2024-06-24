@@ -1,0 +1,45 @@
+{%- comment -%}
+  Snippet for displaying billboards
+{%- endcomment -%}
+
+<div class="
+  c-billboard
+  {% if layout != blank %}c-billboard--{{ layout }}{% else %}c-billboard--overlay{% endif %}
+  {% if full_width == true %}c-billboard--full-width{% endif %}
+  {% if background_color != blank %}u-bg-{{ background_color }}{% endif %}
+  {% if image != blank %}c-billboard--image{% endif %}
+  {% if image_right == true %}c-billboard--image-right{% endif %}
+  maxwidthsanin">
+    <div class="c-billboard__inner">
+      
+
+      <div class="c-billboard__content">
+        {%- if pre_title != blank -%}
+          <p class="c-billboard__pre-title pre-title">{{ pre_title }}</p>
+        {%- endif -%}
+ {% if layout == 'overlay' and image != blank %}
+        <h1 {% if title_id %}id="{{title_id|handleize}}"{% endif %}class="c-billboard__title {% if heading_font_display == true %}h2-display{% endif %}">{{ title|escape }}</h1>
+{% else %}
+        <h2 {% if title_id %}id="{{title_id|handleize}}"{% endif %}class="c-billboard__title {% if heading_font_display == true %}h2-display{% endif %}">{{ title|escape }}</h2>
+    {% endif %}
+        <div class="c-billboard__lead">{{ text }}</div>
+
+        {%- if button_link != blank and button_label != blank -%}
+          {% if layout == 'overlay' and image != blank %}
+            {% assign button_style = 'primary-light' %}
+          {% endif %}
+          <a class="c-billboard__button c-btn c-btn--{% if button_style %}{{button_style}}{% else %}primary{% endif %}" href="{{ button_link }}">{{ button_label }}</a>
+        {%- endif -%}
+      </div>
+      {% if image != blank %}
+        <div class="c-billboard__image">
+          {% include 'responsive-image' with
+            image: image,
+            max_width: 820,
+            max_height: 780
+          %}
+        </div>
+      {% endif %}
+
+    </div>
+</div>

@@ -1,0 +1,135 @@
+{%- comment -%}
+  Static section for displaying a "custom jewelry" billboard on product pages
+{%- endcomment -%}
+{% if section.blocks != blank %}
+  <div class="s-custom-jewelry">
+    {% assign current_product_type = product.type | handle %}
+
+    {% for block in section.blocks %}
+    
+            {%- if block.settings.enabled == true %}
+              {%- include 'billboard' with
+                layout: 'overlay',
+                full_width: true,
+                text_align: 'center',
+                background_color: block.settings.background_color,
+                image: block.settings.image,
+                pre_title: block.settings.pre_title,
+                title: block.settings.title,
+                text: block.settings.text,
+                button_label: block.settings.button_label,
+                button_link: block.settings.button_link,
+                button_style: 'primary-light'
+              -%}
+            {%- endif -%}
+ 
+    {% endfor %}
+  </div>
+{%- endif -%}
+
+{% schema %}
+    {
+        "name": "Custom Jewelry",
+        "max_blocks": 6,
+        "settings": [
+        ],
+        "blocks": [
+            {
+                "type": "select",
+                "name": "Billboard",
+                "settings": [
+                    {
+                       "type":      "checkbox",
+                       "id":        "enabled",
+                       "label":     "Enabled",
+                       "default":   true
+                    },
+                    {
+                        "id": "product_type",
+                        "type": "select",
+                        "label": "Show on product type",
+                        "options": [
+                            {
+                                "value": "ringer",
+                                "label": "Ringer"
+                            },
+                            {
+                                "value": "armband",
+                                "label": "Armbånd"
+                            },
+                            {
+                                "value": "oredobber",
+                                "label": "Øredobber"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "background_color",
+                        "type": "select",
+                        "label": "Background color",
+                        "default": "",
+                        "options": [
+                            {
+                                "value": "primary-background",
+                                "label": "Primary background color"
+                            },
+                            {
+                                "value": "secondary-background",
+                                "label": "Secondary background color"
+                            },
+                            {
+                                "value": "",
+                                "label": "None"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "image",
+                        "type": "image_picker",
+                        "label": "Image"
+                    },
+                    {
+                        "id": "pre_title",
+                        "type": "text",
+                        "label": "Pre-title"
+                    },
+                    {
+                        "id": "title",
+                        "type": "text",
+                        "label": "Title",
+                        "default": "Billboard title"
+                    },
+                    {
+                        "id": "text",
+                        "type": "richtext",
+                        "label": "Billboard content"
+                    },
+                    {
+                        "id": "button_label",
+                        "type": "text",
+                        "label": "Button text"
+                    },
+                    {
+                        "id": "button_link",
+                        "type": "url",
+                        "label": "Button link"
+                    }
+                ]
+            }
+        ],
+        "presets": [
+          {
+            "name": "Custom Jewelry",
+            "category": "Custom Jewelry",
+            "blocks": [
+              {
+                "type": "select"
+              },
+              {
+                "type": "select"
+              }
+            ]
+          }
+        ]
+    }
+{% endschema %}

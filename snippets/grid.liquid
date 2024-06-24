@@ -1,0 +1,35 @@
+{%- comment -%}
+  Snippet for displaying grids
+{%- endcomment -%}
+
+<div class="c-grid c-grid--columns-3 {% if grid_class != blank %}{{grid_class}}{% endif %}">
+    {% if grid_title != blank %}
+        <h3 class="c-grid__title {% if heading_font_display == true %}h2-display{% endif %}">{{ grid_title|escape }}</h3>
+    {% endif %}
+
+    <div class="c-grid__items">
+        {% for block in grid_items %}
+            <div class="c-grid__item">
+
+                {% if block.settings.image != blank %}
+                    {% if block.settings.image_link != blank %}
+                        <a class="c-grid__item__image-link" href="{{block.settings.image_link}}">
+                    {% endif %}
+                            <img loading="lazy" class="c-grid__item__image" src="{{ block.settings.image | img_url }}" alt="{{ block.settings.image.alt | escape }}"width="40" height="40" >
+                    {% if block.settings.image_link != blank %}
+                        </a>
+                    {% endif %}
+                {%- endif -%}
+
+                {%- if block.settings.title != blank -%}
+                    <h5 class="c-grid__item__title pre-title">{{ block.settings.title|escape }}</h5>
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                    <div class="c-grid__item__text">{{ block.settings.text }}</div>
+                {%- endif -%}
+
+            </div>
+        {%- endfor -%}
+    </div>
+</div>

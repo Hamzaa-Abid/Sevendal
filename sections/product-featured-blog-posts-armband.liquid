@@ -1,0 +1,74 @@
+{%- comment -%}
+  Static section for displaying featured blog posts on "Armbånd" product pages
+{%- endcomment -%}
+{% assign product_type = product.type|handle %}
+{% if product_type == 'armband' and section.settings.enabled and section.blocks != blank %}
+
+  <div class="s-featured-articles">
+    {% include 'billboard' with
+      pre_title: section.settings.pre_title,
+      title: section.settings.title,
+      text: section.settings.text,
+      text_align: 'center'
+    %}
+
+    {% assign number_of_blocks = section.blocks|size %}
+
+    <div class="c-grid c-grid--columns-{% if number_of_blocks > 3%}4{% else %}{{number_of_blocks}}{% endif %}">
+      <ul class="c-grid__items list-unstyled">
+        {% for block in section.blocks %}
+          <li class="c-grid__item">
+            {% assign article = articles[block.settings.article] %}
+            {% include 'tease-post' with
+              article: article
+            %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+    {
+        "name": "Blog posts (armbånd)",
+        "max_blocks": 4,
+        "settings": [
+          {
+             "type":      "checkbox",
+             "id":        "enabled",
+             "label":     "Enabled",
+             "default":   true
+          },
+          {
+              "id": "pre_title",
+              "type": "text",
+              "label": "Pre-title"
+          },
+          {
+              "id": "title",
+              "type": "text",
+              "label": "Title",
+              "default": "Overskrift"
+          },
+          {
+              "id": "text",
+              "type": "richtext",
+              "label": "Blog posts description"
+          }
+        ],
+        "blocks": [
+            {
+                "type": "select",
+                "name": "Blogginnlegg",
+                "settings": [
+                    {
+                        "id": "article",
+                        "type": "article",
+                        "label": "Velg blogginnlegg"
+                    }
+                ]
+            }
+        ]
+    }
+{% endschema %}

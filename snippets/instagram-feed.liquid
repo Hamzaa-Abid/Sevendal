@@ -1,0 +1,11 @@
+<div class="c-instagram-feed text-center">
+    {% if pre_title != blank %}
+        <p class="pre-title">{{ pre_title }}</p>
+    {% endif %}
+    {% if title != blank %}
+        <h3 class="c-instagram-feed__title">{{ title }}</h3>
+    {% endif %}
+    {% if button_label != blank and button_link != blank %}
+        <a class="c-btn c-btn--primary-ghost" href="{{ button_link }}">{{ button_label }}</a>
+    {% endif %}
+</div>

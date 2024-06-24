@@ -1,0 +1,255 @@
+{% assign productLimit = 1 %}
+{% if limit %}
+    {% assign productLimit = limit %}
+{% endif %}
+
+<div class="c-grid c-grid--products c-grid--columns-3">
+    {% if title %}
+        <h3 class="c-grid__title">{{ title }}</h3>
+    {% endif %}
+  
+      <div class="c-grid__items yellow">
+        {% for product in products limit: productLimit %}
+            {% if currentProduct != blank and currentProduct.id == product.id %}
+                {% continue %}
+            {% endif %}
+
+<!--             <div class="c-grid__item">
+                <div class="c-product-card">
+                  <a href="{{ product.url }}" class="c-product-card__link">
+                      <img loading="lazy" class="c-product-card__image" src="{{ product.featured_image | image_url }}">
+                  </a>
+                  <div class="c-product-card__footer">
+                      <h6 class="c-grid__item__title c-product-card__title">{{ product.title }}</h6>
+                      <div class="c-product-card__footer__bottom-line">
+                      <div class="small">{{collection.title}}</div>
+                      <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                      </div>
+                  </div>
+                </div>
+            </div> -->
+      
+      		{% assign itemCount = 0 %}
+      
+      		{% for variant in product.variants %}
+              {% if variant.available %}
+                {% for option in variant.option1 %}
+      
+                  {% if option == "Rosé gull" %}
+                  	{% capture _ %}{% increment my_counter %}{% endcapture %}
+                  {% elsif option == "Gult gull" %} 
+                  	{% capture _ %}{% increment my_counter1 %}{% endcapture %}
+                  {% endif %}	
+      
+                  {% assign itemCount = itemCount | plus: 1 %}
+
+                  {% if option == "Gult gull" %}
+
+                  <div class="c-grid__item {% if option == "Hvitt gull" %} {{option}}-{{itemCount}} {% elsif option == "Rosé gull" %} {{option}}-{{my_counter}} {% elsif option == "Gult gull" %} {{option}}-{{my_counter1}} {% endif %}">
+                    <div class="c-product-card">
+                      <a href="{{ product.url }}?variant={{ variant.id }}" class="c-product-card__link">
+                        <img loading="lazy" class="c-product-card__image" src="{{ variant.featured_image | image_url }}" alt="{{  variant.featured_image.alt | escape }}">
+                      </a>
+                      <div class="c-product-card__footer">
+                        <h6 class="c-grid__item__title c-product-card__title">{{ product.title }} - {{ option }}</h6>
+                        <div class="c-product-card__footer__bottom-line">
+                          <div class="small">{{collection.title}}</div>
+                          <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+
+                  {% break %}
+
+                  {% endif %}
+      
+
+				{% endfor %}
+              {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+
+    <div class="c-grid__items white">
+        {% for product in products limit: productLimit %}
+            {% if currentProduct != blank and currentProduct.id == product.id %}
+                {% continue %}
+            {% endif %}
+
+<!--             <div class="c-grid__item">
+                <div class="c-product-card">
+                  <a href="{{ product.url }}" class="c-product-card__link">
+                      <img loading="lazy" class="c-product-card__image" src="{{ product.featured_image | image_url }}">
+                  </a>
+                  <div class="c-product-card__footer">
+                      <h6 class="c-grid__item__title c-product-card__title">{{ product.title }}</h6>
+                      <div class="c-product-card__footer__bottom-line">
+                      <div class="small">{{collection.title}}</div>
+                      <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                      </div>
+                  </div>
+                </div>
+            </div> -->
+      
+      		{% assign itemCount = 0 %}
+      
+      		{% for variant in product.variants %}
+              {% if variant.available %}
+                {% for option in variant.option1 %}
+      
+                  {% if option == "Rosé gull" %}
+                  	{% capture _ %}{% increment my_counter %}{% endcapture %}
+                  {% elsif option == "Gult gull" %} 
+                  	{% capture _ %}{% increment my_counter1 %}{% endcapture %}
+                  {% endif %}	
+      
+                  {% assign itemCount = itemCount | plus: 1 %}
+
+                {% if option == "Hvitt gull" %}
+
+                <div class="c-grid__item {% if option == "Hvitt gull" %} {{option}}-{{itemCount}} {% elsif option == "Rosé gull" %} {{option}}-{{my_counter}} {% elsif option == "Gult gull" %} {{option}}-{{my_counter1}} {% endif %}">
+                  <div class="c-product-card">
+                    <a href="{{ product.url }}?variant={{ variant.id }}" class="c-product-card__link">
+                      <img class="c-product-card__image" src="{{ variant.featured_image | image_url }}" alt="{{  variant.featured_image.alt | escape }}">
+                    </a>
+                    <div class="c-product-card__footer">
+                      <h6 class="c-grid__item__title c-product-card__title">{{ product.title }} - {{ option }}</h6>
+                      <div class="c-product-card__footer__bottom-line">
+                        <div class="small">{{collection.title}}</div>
+                        <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% else %}
+
+                {% break %}
+
+                {% endif %}
+      
+
+				{% endfor %}
+              {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+  
+  <div class="c-grid__items rose">
+        {% for product in products limit: productLimit %}
+            {% if currentProduct != blank and currentProduct.id == product.id %}
+                {% continue %}
+            {% endif %}
+
+<!--             <div class="c-grid__item">
+                <div class="c-product-card">
+                  <a href="{{ product.url }}" class="c-product-card__link">
+                      <img class="c-product-card__image" src="{{ product.featured_image | image_url }}">
+                  </a>
+                  <div class="c-product-card__footer">
+                      <h6 class="c-grid__item__title c-product-card__title">{{ product.title }}</h6>
+                      <div class="c-product-card__footer__bottom-line">
+                      <div class="small">{{collection.title}}</div>
+                      <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                      </div>
+                  </div>
+                </div>
+            </div> -->
+      
+      		{% assign itemCount = 0 %}
+      
+      		{% for variant in product.variants %}
+              {% if variant.available %}
+                {% for option in variant.option1 %}
+      
+                  {% if option == "Rosé gull" %}
+                  	{% capture _ %}{% increment my_counter %}{% endcapture %}
+                  {% elsif option == "Gult gull" %} 
+                  	{% capture _ %}{% increment my_counter1 %}{% endcapture %}
+                  {% endif %}	
+      
+                  {% assign itemCount = itemCount | plus: 1 %}
+
+                  {% if option == "Rosé gull" %}
+
+                  <div class="c-grid__item {% if option == "Hvitt gull" %} {{option}}-{{itemCount}} {% elsif option == "Rosé gull" %} {{option}}-{{my_counter}} {% elsif option == "Gult gull" %} {{option}}-{{my_counter1}} {% endif %}">
+                    <div class="c-product-card">
+                      <a href="{{ product.url }}?variant={{ variant.id }}" class="c-product-card__link">
+                        <img class="c-product-card__image" src="{{ variant.featured_image | image_url }}" alt="{{  variant.featured_image.alt | escape }}">
+                      </a>
+                      <div class="c-product-card__footer">
+                        <h6 class="c-grid__item__title c-product-card__title">{{ product.title }} - {{ option }}</h6>
+                        <div class="c-product-card__footer__bottom-line">
+                          <div class="small">{{collection.title}}</div>
+                          <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+
+                  {% break %}
+
+                  {% endif %}
+      
+
+				{% endfor %}
+              {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+
+
+</div>
+
+
+<style>
+
+  .c-grid__items.white .Hvitt:first-child {
+    display: block;
+  }
+
+  .c-grid__items.white .Hvitt {
+    display: none;
+  }
+  
+  .c-grid__items.rose .Rosé:first-child {
+    display: block;
+  }
+
+  .c-grid__items.rose .Rosé {
+    display: none;
+  }
+
+  .c-grid__items.yellow .Gult:first-child {
+    display: block;
+  }
+
+  .c-grid__items.yellow .Gult {
+    display: none;
+  }
+  
+  .c-grid__items.rose {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}
+  
+    .c-grid__items.white {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}
+  
+    .c-grid__items.yellow {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}
+  
+  
+</style>

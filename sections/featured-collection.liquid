@@ -1,0 +1,59 @@
+{%- comment -%}
+<div class="
+  c-billboard
+  c-billboard--split
+  c-billboard--full-width
+  u-bg-primary-background
+  c-billboard--image
+  
+  maxwidthsanin">
+  This is a required section for the Shopify Theme Store.
+  It is available in the "Featured Collection" section in the theme editor.
+
+  Theme Store required settings
+  - Collection
+
+  Theme Store optional settings
+  - Heading: title of the featured collection section
+{%- endcomment -%}
+<section class="s-featured-collection">
+  {% if section.settings.title != blank %}
+    <div class="
+c-billboard--full-width" style="background-color: #fffcf7; margin-top:-35px;">
+    <h2 class="s-featured-collection__title">{{ section.settings.title | escape }}</h2>
+  {% endif %}
+
+  {%- assign collection = collections[section.settings.collection] -%}
+
+
+  {% include 'grid--products' with
+      products: collection.products,
+      limit: 4
+  %}
+
+</section></div>
+
+{% schema %}
+  {
+    "name": "Fremhevet produktsamling",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Heading",
+        "default": "Featured collection"
+      },
+      {
+        "id": "collection",
+        "type": "collection",
+        "label": "Collection"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured collection",
+        "category": "Collection"
+      }
+    ]
+  }
+{% endschema %}

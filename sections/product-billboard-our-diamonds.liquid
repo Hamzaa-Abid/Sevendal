@@ -1,0 +1,84 @@
+{%- comment -%}
+  Static section for displaying a "our diamonds" billboard on product pages
+{%- endcomment -%}
+
+{% if section.settings.enabled == true %}
+  {% include 'billboard' with
+    layout: 'split',
+    full_width: true,
+    background_color: section.settings.background_color,
+    image: section.settings.image,
+    pre_title: section.settings.pre_title,
+    heading_font_display: true,
+    title: section.settings.title,
+    text: section.settings.text,
+    button_label: section.settings.button_label,
+    button_link: section.settings.button_link,
+    button_style: 'primary-light'
+  %}
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Our diamonds",
+    "settings": [
+      {
+        "type":      "checkbox",
+        "id":        "enabled",
+        "label":     "Enabled",
+        "default":   true
+      },
+      {
+        "id": "background_color",
+        "type": "select",
+        "label": "Background color",
+        "default": "",
+        "options": [
+          {
+            "value": "primary-background",
+            "label": "Primary background color"
+          },
+          {
+            "value": "secondary-background",
+            "label": "Secondary background color"
+          },
+          {
+            "value": "",
+            "label": "None"
+          }
+        ]
+      },
+      {
+        "id": "image",
+        "type": "image_picker",
+        "label": "Image"
+      },
+      {
+        "id": "pre_title",
+        "type": "text",
+        "label": "Pre-title"
+      },
+      {
+        "id": "title",
+        "type": "text",
+        "label": "Title",
+        "default": "Billboard title"
+      },
+      {
+        "id": "text",
+        "type": "richtext",
+        "label": "Billboard content"
+      },
+      {
+        "id": "button_label",
+        "type": "text",
+        "label": "Button text"
+      },
+      {
+        "id": "button_link",
+        "type": "url",
+        "label": "Button link"
+      }
+    ]
+  }
+{% endschema %}

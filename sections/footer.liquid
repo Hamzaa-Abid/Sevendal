@@ -1,0 +1,158 @@
+<footer class="c-footer">
+  {% if settings['usp_1'] != blank %}
+  {% include 'usp' with
+    usp_1: {{settings['usp_1']}},
+    usp_2: {{settings['usp_2']}},
+    usp_3: {{settings['usp_3']}}
+  %}
+  {% endif %}
+
+  <div class="c-footer__main">
+
+    <div class="c-footer__left-column">
+      {% if section.settings.contact_info != blank %}
+      <div class="c-footer__contact-info rte small">
+        <div class="c-footer__logo c-footer__logo--desktop">
+          {% if section.settings.logo != blank %}
+            {% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+            <img loading="lazy" src="{{ section.settings.logo | img_url: image_size }}"
+                srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+                alt="{{ section.settings.logo.alt | default: shop.name }}">
+          {% else %}
+            {{ shop.name }}
+          {% endif %}
+        </div>
+        {{section.settings.contact_info}}
+      </div>
+    {% endif %}
+<ul class="soical">
+<li><a aria-label="facebook" target="_blank" href="https://www.facebook.com/profile.php?id=100086068517547"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+<li><a aria-label="instagram" target="_blank" href="https://www.instagram.com/sevendal_com/"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+</ul>
+    </div>
+
+    <div class="c-footer__right-column">
+      <div class="c-footer__logo c-footer__logo--mobile">
+        {% if section.settings.logo != blank %}
+          {% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+          <img loading="lazy" src="{{ section.settings.logo | img_url: image_size }}"
+              srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+              alt="{{ section.settings.logo.alt | default: shop.name }}">
+        {% else %}
+          {{ shop.name }}
+        {% endif %}
+      </div>
+
+      {% if section.settings.show_newsletter_signup %}
+        <div class="c-footer__newsletter-signup">
+        <h2>Få de siste nyhetene og gode tilbud!</h2>
+          {% form 'customer' %}
+            {{ form.errors | default_errors }}
+            {% if form.posted_successfully? %}
+              <p>{{ 'general.newsletter_form.confirmation' | t }}</p>
+            {% else %}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <input type="email"
+                name="contact[email]"
+                id="Email"
+                value="{% if customer.email != blank %}{{ customer.email }}{% endif %}"
+                placeholder="Din e-postadresse"
+                autocorrect="off"
+                autocapitalize="off">
+              <button type="submit" name="commit" id="Subscribe">
+                <span>{{ 'general.newsletter_form.submit' | t }}</span>
+              </button>
+            {% endif %}
+          {% endform %}
+          <div class="klaviyo-form-X8wyqf"></div>
+        </div>
+      {% endif %}
+
+      <div class="c-footer__menus">
+        {%- assign footer_linklist_1 = section.settings.footer_linklist_1 -%}
+        {% if linklists[footer_linklist_1].links.size > 0 %}
+          <div class="c-footer__menu">
+            <strong>{{linklists[footer_linklist_1].title}}</strong>
+            <ul class="list-unstyled">
+              {% for link in linklists[footer_linklist_1].links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {%- assign footer_linklist_2 = section.settings.footer_linklist_2 -%}
+        {% if linklists[footer_linklist_2].links.size > 0 %}
+          <div class="c-footer__menu">
+            <strong>{{linklists[footer_linklist_2].title}}</strong>
+            <ul class="list-unstyled">
+              {% for link in linklists[footer_linklist_2].links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {%- assign footer_linklist_3 = section.settings.footer_linklist_3 -%}
+        {% if linklists[footer_linklist_3].links.size > 0 %}
+          <div class="c-footer__menu">
+            <strong>{{linklists[footer_linklist_3].title}}</strong>
+            <ul class="list-unstyled">
+              {% for link in linklists[footer_linklist_3].links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="c-footer__copyright u-bg-primary-background">
+    <div class="c-footer__copyright__inner">
+      <small>{{ 'layout.footer.copyright' | t }} &copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: '/' }}. {% if settings['org_no'] != blank %}Org.nr. {{settings['org_no']}}{% endif %}</small>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+  {
+    "name": "Footer",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo image"
+      },
+      {
+        "type": "richtext",
+        "id": "contact_info",
+        "label": "Contact info"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_newsletter_signup",
+        "label": "Show newsletter signup form",
+        "default": true
+      },
+      {
+        "type": "link_list",
+        "id": "footer_linklist_1",
+        "label": "First menu",
+        "default": "footer"
+      },
+      {
+        "type": "link_list",
+        "id": "footer_linklist_2",
+        "label": "Second menu"
+      },
+      {
+        "type": "link_list",
+        "id": "footer_linklist_3",
+        "label": "Third menu"
+      }
+    ]
+  }
+{% endschema %}
+
+

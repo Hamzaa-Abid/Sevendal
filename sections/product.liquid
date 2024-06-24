@@ -1,0 +1,1012 @@
+{% comment %}
+  Loop through collections for the product and match agains the "kategoristruktur" links
+  to find the second-level collection. We're displaying this above the product title.
+{% endcomment %}
+
+{% assign matchedLink = null %}
+
+{% assign productCollections = product.collections %}
+{% assign matchedLink = null %}
+{% assign featuredCollection = null %}
+
+{% for collection in productCollections %}
+  {% if matchedLink != blank %}
+    {% break %}
+  {% endif %}
+  
+  {% for link in linklists.kategoristruktur.links %}
+    {% if collection.title == link.title %}
+      {% break %}
+    {% else %}
+      {% if link.links != blank %}
+        {% for child_link in link.links %}
+          {% if collection.title == child_link.title %}
+            {% assign matchedLink = child_link %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% if matchedLink != blank %}
+  {% assign featuredCollection = matchedLink.object.title %}
+{% endif %}
+
+<section data-section-id="{{ section.id }}" data-section-type="product" class="c-product">
+
+  {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
+
+  <div class="c-product__images">
+    {% for image in product.images %}
+      {% capture wrapper_class %}
+        {%- unless featured_image == image -%}
+          hide
+        {%- endunless -%}
+      {% endcapture %}
+
+      {% include 'responsive-image' with
+        image: image
+        max_width: 720,
+        max_height: 800,
+        image_attributes: "data-product-featured-image",
+        wrapper_class: wrapper_class,
+        wrapper_attributes: "data-product-image-wrapper",
+      %}
+    {% endfor %}
+
+    {% if product.images.size > 1 %}
+      <ul class="c-product__images__thumbnails list-unstyled">
+        {% for image in product.images %}
+          <li data-thumbnail-color="{{ image.alt }}" class="c-product__images__thumbnail">
+            <a href="{{ image.src | img_url: '480x480' }}" data-thumbnail-id="{{ image.id }}" data-product-single-thumbnail{% if featured_image == image %} aria-current="true"{% endif %}>
+              <img loading="lazy" class="product-single__thumbnail-image" src="{{ image.src | img_url: '160x160' }}" alt="{{ image.alt | escape }}">
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <div class="c-product__info">
+    <div class="c-product__meta">
+      {% if featuredCollection != blank %}
+        <span class="pre-title">{{featuredCollection}}</span>
+      {% endif %}
+    </div>
+
+    <h1 class="c-product__title h2-display">{{ product.title }}</h1>
+    <div class="c-product__description rte">
+      {{ product.description }}
+    </div>
+  </div>
+
+  <div class="c-product__content">
+    <div class="c-product__main">
+      <div class="c-product__main__inner">
+        {% form 'product', product, data-product-form: '', data-product-handle: product.handle, data-enable-history-state: 'true' %}
+          {% unless product.has_only_default_variant %}
+            <ol class="c-product__options">
+              {% for option in product.options_with_values %}
+                <li class="js c-product__option">
+                  <div class="c-product__option__content">
+                    <label class="c-product__option__label">
+                      {{ option.name }} – <span class="c-product__option__button js-product-option js-product-option--Option{{ option.position }}" data-option-position="{{ option.position }}">{{option.selected_value}}</span>
+                    </label>
+                    <div tabindex="0" class="c-product__option__button js-product-option js-product-option--Option{{ option.position }}" data-option-position="{{ option.position }}">Velg</div>
+                    <select
+                      id="Option{{ option.position }}"
+                      class="c-product__option__input hide"
+                      name="options[{{ option.name | escape }}]">
+
+                      {% for value in option.values %}
+                        <option 
+                          value="{{ value | escape }}"
+                          {% if option.selected_value == value %}selected="selected"{% endif %}>
+                          {{ value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </li>
+              {% endfor %}
+
+              {% comment %}
+                Get sizes from metafields in collection and namespace with same name as product type
+              {% endcomment %}
+              {% assign product_type = product.type | handle %}
+
+              {% comment %}
+                Map english product type handles to Norwegian collection name handles
+              {% endcomment %}
+              {% case product_type %}
+                {% when 'rings' %}
+                  {% assign product_type = 'ringer' %}
+                {% when 'earrings' %}
+                  {% assign product_type = 'oredobber' %}
+                {% when 'bracelets' %}
+                  {% assign product_type = 'armband' %}
+              {% endcase %}
+                  
+              {% assign typeCollection = collections[product_type] %}
+              
+                {% assign diamonds = collections[product_type].metafields[product_type]['diamond'] | split: ',' %}
+                {% assign defaultdiamond = collections[product_type].metafields[product_type]['diamond_default'] %}
+                {% if defaultdiamond == blank %}
+                  {% assign defaultdiamond = diamonds[0] %}
+                {% endif %}
+              
+              {% assign sizes = collections[product_type].metafields[product_type]['size'] | split: ',' %}
+              {% assign defaultSize = collections[product_type].metafields[product_type]['size_default'] %}
+              {% if defaultSize == blank %}
+                {% assign defaultSize = sizes[0] %}
+              {% endif %}
+              
+              {% comment %}
+              Output diamond as option
+              {% endcomment %}
+
+              {% if diamonds != blank %}
+              <li class="js c-product__option">
+                <div class="c-product__option__content">
+                  <label class="c-product__option__label">
+                    Diamant – <span class="c-product__option__button js-product-option js-product-option--OptionDiamond" data-option-position="Diamond">{{defaultdiamond}}</span>
+                  </label>
+
+                  <div tabindex="0" class="c-product__option__button js-product-option js-product-option--OptionDiamond" data-option-position="Diamond">Velg</div>
+                  <select id="OptionDiamond" class="c-product__option__input hide" name="properties[diamond]">
+                    {% for diamond in diamonds %}
+                    <option value="{{diamond}}" {% if diamond == defaultdiamond %}selected="selected"{% endif %}>{{diamond}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </li>
+              {% endif %}
+
+              {% comment %}
+                Output sizes as option
+              {% endcomment %}
+              {% if sizes != blank %}
+                <li class="js c-product__option">
+                  <div class="c-product__option__content">
+                    <label class="c-product__option__label">
+                      Ringstørrelse – <span class="c-product__option__button js-product-option js-product-option--OptionSize" data-option-position="Size">{{defaultSize}}</span>
+                    </label>
+
+                    <div tabindex="0" class="c-product__option__button js-product-option js-product-option--OptionSize" data-option-position="Size">Velg</div>
+                    <select id="OptionSize" class="c-product__option__input hide" name="properties[Størrelse]">
+                      {% for size in sizes %}
+                        <option value="{{size}}" {% if size == defaultSize %}selected="selected"{% endif %}>{{size}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </li>
+              {% endif %}
+            </ol>
+          {% endunless %}
+
+          <noscript>
+            <select name="id">
+              {% for variant in product.variants %}
+                <option onclick="changeVariationImages()"
+                  {% if variant == current_variant %}selected="selected"{% endif %}
+                  {% unless variant.available %}disabled="disabled"{% endunless %}
+                  value="{{ variant.id }}">
+                  {{ variant.title }}
+                </option>
+              {% endfor %}
+            </select>
+          </noscript>
+
+          <div data-price-wrapper class="c-product__prices">
+            <div class="c-product__prices__main">
+              <div class="c-product__prices__main__label caption">Din pris</div>
+              <span data-product-price class="c-product__prices__main__price">
+                {{ current_variant.price | money }}
+              </span>
+
+              {% if product.compare_at_price_max > product.price %}
+                <span class="visually-hide" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+                <s data-compare-price>
+                  {% if current_variant.compare_at_price > current_variant.price %}
+                    {{ current_variant.compare_at_price | money }}
+                  {% endif %}
+                </s>
+                <div class="c-product__prices__compare-competitor">
+                  <div class="c-product__prices__compare-competitor__label caption">Liknende produkt hos konkurrent</div>
+                  <div class="c-product__prices__compare-competitor__price">Fra <span>{{ current_variant.compare_at_price | money }}</span></div>
+              </div>
+              {% endif %}
+            </div>
+
+
+          </div>
+
+          <button
+            class="c-btn c-btn--primary"
+            type="submit"
+            name="add"
+            data-submit-button
+            {% unless current_variant.available %}disabled="disabled"{% endunless %}>
+            <span data-submit-button-text>
+              {% if current_variant.available %}
+                {{ 'products.product.add_to_cart' | t }}
+              {% else %}
+                {{ 'products.product.sold_out' | t }}
+              {% endif %}
+            </span>
+        </button>
+
+        {% endform %}
+
+        {% include 'usp' with
+          usp_1: {{settings['product_usp_1']}},
+          usp_2: {{settings['product_usp_2']}},
+          usp_3: {{settings['product_usp_3']}}
+        %}
+
+        <div class="c-product__payment-providers">
+          <span class="c-product__payment-providers__provider">
+            {{ 'payment-logo-visa.svg' | asset_url | img_tag: 'Visa logo' }}
+          <span>
+          <span class="c-product__payment-providers__provider">
+            {{ 'payment-logo-mastercard.svg' | asset_url | img_tag: 'Mastercard logo' }}
+          <span>
+          <span class="c-product__payment-providers__provider">
+            {{ 'payment-logo-klarna.svg' | asset_url | img_tag: 'Klarna logo' }}
+          <span>
+        </div>
+
+        <p class="c-product__sku caption text-center">Artikkelnummer: {{ current_variant.sku }}</p>
+
+        {% if section.blocks != blank and section.settings.show_certificates == true %}
+          {%- include 'product-certificates' with
+            certificates: section.blocks
+          -%}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="c-product__configurator hide">
+      <div class="c-product__configurator__inner">
+
+        {% unless product.has_only_default_variant %}
+          {% for option in product.options_with_values %}
+            {% assign optionName = option.name|handleize %}
+
+            <div class="c-product__configurator__option hide" data-option-position="Option{{ option.position }}">
+              <p class="h3 c-product__configurator__option__title">
+                  Velg {{ option.name|downcase }}
+              </p>
+
+              {% comment %}
+                Map options with incompatible names (the meta fields have to be shortened to comply with max chars)
+              {% endcomment %}
+              {% case optionName %}
+                {% when 'diamantkvalitet' %}
+                  {% assign optionName = 'stenfarge' %}
+                 {% when 'gullfarge' %}
+                  {% assign optionName = 'gullfarge' %}
+                {% endcase %}
+
+              {% comment %}
+                Display option subtitle from metafields
+              {% endcomment %}
+              {% assign option_meta_subtitle_key = optionName|append: '_subtitle' %}
+              {% assign option_meta_subtitle = shop.metafields['product_option'][option_meta_subtitle_key] %}
+              <p class="c-product__configurator__option__subtitle">
+                {{ option_meta_subtitle }}
+              </p>
+
+              {% comment %}
+                  Render options as radio buttons if 3 or less choices, square buttons if more
+              {% endcomment %}
+              {% assign optionsLength = option.values | size %}
+              {% if optionsLength < 5 %}
+                {% assign radioTypeClass = 'input-wrapper' %}
+              {% else %}
+                {% assign radioTypeClass = 'radio-square' %}
+              {% endif %}
+
+              {% for value in option.values %}
+                <div class="js c-product__configurator__option__input-wrapper {{ value | handleize }} {{ radioTypeClass }}">
+                  <input onclick="changeVariationImages()"
+                    type="radio"
+                    class="c-product__configurator__option__input js-product-config"
+                    name="{{ option.name | escape }}"
+                    id="{{ value | handleize }}"
+                    value="{{ value | escape }}"
+                    {% if option.selected_value == value %}checked{% endif %}
+                    data-option-position="Option{{ option.position }}"
+                  />
+                  <label for="{{ value | handleize }}">{{ value | escape }}</label>
+                </div>
+              {% endfor %}
+
+              {% comment %}
+                Display option description from metafields
+              {% endcomment %}
+           
+              {% assign option_meta_description_key = optionName|append: '_description' %}
+              {% assign option_meta_description = shop.metafields['product_option'][option_meta_description_key] %}
+              {% if option_meta_description %}
+                <div class="c-product__configurator__option__description">
+                  <div class="c-product__configurator__option__description__text">
+                    {{ option_meta_description }}
+                  </div>
+
+                  {% assign option_meta_read_more_link_key = optionName|append: '_read_more_link' %}
+                  {% assign option_meta_read_more_link = shop.metafields['product_option'][option_meta_read_more_link_key] %}
+                  {% assign option_meta_read_more_link_size = option_meta_read_more_link | size | times: 1 %}
+
+                    <div class="c-product__configurator__option__description__link">
+                      <a href="{{ option_meta_read_more_link }}"></a>
+                    </div>
+
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="c-product__configurator__option c-product__configurator__option--size hide" data-option-position="OptionSize">
+            <p class="h3 c-product__configurator__option__title">
+              Velg størrelse
+            </p>
+
+            {% comment %}
+              Display option subtitle from metafields
+            {% endcomment %}
+            {% assign option_meta_subtitle_key = 'size_subtitle' %}
+            {% assign option_meta_subtitle = shop.metafields['product_option'][option_meta_subtitle_key] %}
+            <p class="c-product__configurator__option__subtitle">
+              {{ option_meta_subtitle }}
+            </p>
+
+            {% comment %}
+              Output sizes as option
+            {% endcomment %}
+            {% if sizes != blank %}
+              <div class="c-product__configurator__options">
+                {% for size in sizes %}
+                  <div class="js c-product__configurator__option__input-wrapper radio-square">
+                    <input
+                      type="radio"
+                      class="c-product__configurator__option__input js-product-config"
+                      name="size"
+                      id="{{ size | handleize }}"
+                      value="{{ size | escape }}"
+                      data-option-position="OptionSize"
+                      {% if size == defaultSize %}checked{% endif %}
+                    />
+                    <label for="{{ size | handleize }}">{{ size | escape }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+
+              {% comment %}
+                Display option description from metafields
+              {% endcomment %}
+              {% assign option_meta_description_key = 'size_description' %}
+              {% assign option_meta_description = shop.metafields['product_option'][option_meta_description_key] %}
+
+              <div class="c-product__configurator__option__description">
+                <div class="c-product__configurator__option__description__text">
+                  {{ option_meta_description }}
+                </div>
+
+                {% assign option_meta_read_more_link_key = 'size_read_more_link' %}
+                {% assign option_meta_read_more_link = shop.metafields['product_option'][option_meta_read_more_link_key] %}
+                {% assign option_meta_read_more_link_size = option_meta_read_more_link | size | times: 1 %}
+
+                {% if option_meta_read_more_link_size > 0 %}
+                  <div class="c-product__configurator__option__description__link">
+                    <a href="{{ option_meta_read_more_link }}"></a>
+                  </div>
+                {% endif %}
+              </div>
+
+            {% endif %}
+
+          </div>
+        
+        
+        <div class="c-product__configurator__option c-product__configurator__option--diamond hide" data-option-position="OptionDiamond">
+            <p class="h3 c-product__configurator__option__title">
+                         Velg diamant
+            </p>
+
+            {% comment %}
+              Display option subtitle from metafields
+            {% endcomment %}
+            {% assign option_meta_subtitle_key = 'diamant_subtitle' %}
+            {% assign option_meta_subtitle = shop.metafields['product_option'][option_meta_subtitle_key] %}
+            <p class="c-product__configurator__option__subtitle">
+              {{ option_meta_subtitle }}
+            </p>
+
+            {% comment %}
+              Output diamant as option
+            {% endcomment %}
+            {% if diamonds != blank %}
+              <div class="c-product__configurator__options">
+                {% for diamond in diamonds %}
+                  <div class="js c-product__configurator__option__input-wrapper input-wrapper">
+                    <input
+                      type="radio"
+                      class="c-product__configurator__option__input js-product-config"
+                      name="diamond"
+                      id="{{ diamond | handleize }}"
+                      value="{{ diamond | escape }}"
+                      data-option-position="OptionDiamond"
+                      {% if diamond == defaultdiamond %}checked{% endif %}
+                    />
+                    <label for="{{ diamond | handleize }}">{{ diamond | escape }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+
+              {% comment %}
+                Display option description from metafields
+              {% endcomment %}
+              {% assign option_meta_description_key = 'diamant_description' %}
+              {% assign option_meta_description = shop.metafields['product_option'][option_meta_description_key] %}
+
+              <div class="c-product__configurator__option__description">
+                <div class="c-product__configurator__option__description__text">
+                  {{ option_meta_description }}
+                </div>
+
+                {% assign option_meta_read_more_link_key = 'diamant_read_more_link' %}
+                {% assign option_meta_read_more_link = shop.metafields['product_option'][option_meta_read_more_link_key] %}
+                {% assign option_meta_read_more_link_size = option_meta_read_more_link | size | times: 1 %}
+
+                {% if option_meta_read_more_link_size > 0 %}
+                  <div class="c-product__configurator__option__description__link">
+                    <a href="{{ option_meta_read_more_link }}"></a>
+                  </div>
+                {% endif %}
+              </div>
+
+            {% endif %}
+
+          </div>
+
+        {% endunless %}
+
+        <button class="c-btn c-btn--primary c-product__configurator__save-button js-save-product-config">Lagre valg</button>
+
+        <a class="c-product__configurator__cancel-button js-cancel-product-config" style="display: none" href="#">Avbryt</a>
+
+      </div>
+    </div>
+  </div>
+  <div id="VariantsJson" class="hide" aria-hidden="true">
+    {{ product.variants | json }}
+  </div>
+</section>
+      
+      <script>
+          function changeVariationImages() {
+          
+            // Trigger save button
+            var event = new CustomEvent("triggerSave", {});
+            document.querySelector('.js-save-product-config').dispatchEvent(event);
+
+            let variant = currentVariant.title;
+
+            let images = document.querySelectorAll('.c-product__images__thumbnails img');
+            let variantImages = [];
+            images.forEach(image => {
+              let alts = image.alt.split(',')
+              if (alts.includes(variant)) {
+                variantImages.push(image)
+              }
+            });
+            if (variantImages.length <= 0) {
+              images.forEach(image => {
+                let alts = image.alt.split(',')
+                if (alts.includes('default')) {
+                  variantImages.push(image)
+                }
+              });
+            }
+
+
+            if (variantImages.length > 0) {
+              hideAllImages();
+
+              let first = true;
+              variantImages.forEach(el => {
+                el.parentElement.parentElement.style.display = "block";
+                if (first) {
+                  el.click()
+                  first = false;
+                }
+              });
+            }
+          }
+
+          function hideAllImages() {
+            document.querySelectorAll('.c-product__images__thumbnails img').forEach(el => {el.parentElement.parentElement.style.display = "none"});
+          }
+
+          window.addEventListener("load", changeVariationImages);
+        </script>
+
+{% schema %}
+  {
+    "name": "Certificates",
+    "max_blocks": 6,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_certificates",
+        "label": "Show certificates",
+        "default": true
+      }
+    ],
+    "blocks": [
+      {
+        "type": "select",
+        "name": "Certificate",
+        "settings": [
+          {
+            "id": "image",
+            "type": "image_picker",
+            "label": "Image"
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "label": "Overskrift"
+          },
+          {
+            "id": "text",
+            "type": "text",
+            "label": "Beskrivelse"
+          },
+          {
+            "id": "read_more_link",
+            "type": "url",
+            "label": "Link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Certificates",
+        "category": "Grid",
+        "blocks": [
+          {
+            "type": "select"
+          },
+          {
+            "type": "select"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
+{% javascript %}
+  // Handle clicks on option buttons
+  const productOptions = document.querySelectorAll('.js-product-option');
+  for (let i=0; i < productOptions.length; i++) {
+    productOptions[i].addEventListener('click', e => {
+      // Hide product info and slide in configurator
+      document.querySelector('.c-product__info').classList.toggle('hide');
+      document.querySelector('.c-product__main').classList.toggle('collapsed');
+      document.querySelector('.c-product__configurator').classList.toggle('hide');
+      // Unhide the option matching the clicked one
+      const objectPosition = productOptions[i].getAttribute('data-option-position');
+      document.querySelector('.c-product__configurator [data-option-position=Option' + objectPosition + ']').classList.toggle('hide');
+    });
+  }
+
+  // Handle configuration of option
+  const productConfigs = document.querySelectorAll('.js-product-config');
+  const saveProductConfig = document.querySelector('.js-save-product-config');
+  for (let i=0; i < productConfigs.length; i++) {
+    productConfigs[i].addEventListener('click', e => {
+      saveProductConfig.setAttribute('data-product-option', productConfigs[i].getAttribute('data-option-position'));
+      saveProductConfig.setAttribute('data-option-value', productConfigs[i].value);
+    });
+  }
+
+  // Set availability on load
+  setAvailability();
+
+  // Set selected variant on load
+  setSelectedVariant();
+
+  // Change the actual product option when saving configuration
+  saveProductConfig.addEventListener('click', (event) => {
+    const productOption = saveProductConfig.getAttribute('data-product-option');
+    const optionValue = saveProductConfig.getAttribute('data-option-value');
+
+    if (productOption && optionValue) {
+      // Set value of product option (hidden input)
+      document.getElementById(productOption).value = optionValue;
+      // Set text in option button
+      document.querySelector('.js-product-option--' + productOption).innerText = optionValue;
+      // Unselect previous selected option
+      selectedOption = document.querySelector('#' + productOption + ' [selected]');
+      if (selectedOption) {
+        selectedOption.removeAttribute('selected');
+      }
+      // Set selected option
+      optionElement = document.querySelector('#' + productOption + ' option[value="' + optionValue + '"]');
+      optionElement.setAttribute('selected','');
+      // Trigger change event to update variant properly in Shopify
+      const evt = document.createEvent('HTMLEvents');
+      evt.initEvent('change', false, true);
+      optionElement.parentNode.dispatchEvent(evt);
+    }
+
+    // Hide option config, slide out configurator, unhide product info
+    document.querySelector('.c-product__configurator').classList.toggle('hide');
+    document.querySelector('.c-product__configurator__option:not(.hide)').classList.toggle('hide');
+    document.querySelector('.c-product__main').classList.toggle('collapsed');
+    document.querySelector('.c-product__info').classList.toggle('hide');
+
+
+    // Set availability on variant change
+    setAvailability();
+
+    // Set selected variant on variant change
+    setSelectedVariant();
+  });
+// Duplicate start
+          saveProductConfig.addEventListener('triggerSave', (event) => {
+    const productOption = saveProductConfig.getAttribute('data-product-option');
+    const optionValue = saveProductConfig.getAttribute('data-option-value');
+
+    if (productOption && optionValue) {
+      // Set value of product option (hidden input)
+      document.getElementById(productOption).value = optionValue;
+      // Set text in option button
+      document.querySelector('.js-product-option--' + productOption).innerText = optionValue;
+      // Unselect previous selected option
+      selectedOption = document.querySelector('#' + productOption + ' [selected]');
+      if (selectedOption) {
+        selectedOption.removeAttribute('selected');
+      }
+      // Set selected option
+      optionElement = document.querySelector('#' + productOption + ' option[value="' + optionValue + '"]');
+      optionElement.setAttribute('selected','');
+      // Trigger change event to update variant properly in Shopify
+      const evt = document.createEvent('HTMLEvents');
+      evt.initEvent('change', false, true);
+      optionElement.parentNode.dispatchEvent(evt);
+    }
+
+
+    // Set availability on variant change
+    setAvailability();
+
+    // Set selected variant on variant change
+    setSelectedVariant();
+  });
+// end
+  // Fix for ajax add-to-cart: create a hidden input "id" with selected variant
+  function setSelectedVariant() {
+    const productForm = document.querySelector('.shopify-product-form');
+    if (productForm) {
+      let idInput = productForm.querySelector('[name=id]');
+      if (!idInput) {
+        idInput = document.createElement('input');
+        idInput.className = 'js-selected-variant-id';
+        idInput.type = 'hidden';
+        idInput.setAttribute('name', 'id');
+        idInput.style.display = 'none';
+        idInput.setAttribute('aria-hidden', 'true');
+        productForm.appendChild(idInput);
+      }
+
+      var variantsJson = document.querySelector('#VariantsJson');
+      if (variantsJson) {
+        var variantsObject = JSON.parse(variantsJson.innerText);
+
+        if (variantsObject.length > 1) {
+          currentVariant = getVariantFromOptions(variantsObject);
+
+          if (currentVariant) {
+            idInput.value = currentVariant.id;
+          }
+        } else if (variantsObject.length == 1) {
+          // Single products without variants
+          currentVariant = variantsObject[0];
+          idInput.value = currentVariant.id;
+        }
+      }
+    }
+  }
+
+  // Close configurator on cancel
+  const cancelProductConfig = document.querySelector('.c-product__configurator .js-cancel-product-config');
+  if (cancelProductConfig) {
+    cancelProductConfig.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeConfigurator();
+    })
+  }
+
+  function setAvailability() {
+    var variantsJson = document.querySelector('#VariantsJson');
+    if (variantsJson) {
+      var variantsObject = JSON.parse(variantsJson.innerText);
+
+      if (variantsObject.length > 1) {
+        currentVariant = getVariantFromOptions(variantsObject);
+
+        if (currentVariant) {
+          setCurrentVariantAvailability(currentVariant, variantsObject);
+        }
+      }
+    }
+  }
+
+  function enableVariantOption(group, value) {
+    input = group.querySelector('input.js-product-config[value="' + value + '"]');
+    input.removeAttribute('disabled');
+    label = group.querySelector('input.js-product-config[value="' + value + '"] + label');
+    label.classList.remove('disabled');
+  }
+
+  function enableVariantOptionByValue(valuesToEnable, optionName) {
+    var group = document.querySelector('.c-product__configurator__option[data-option-position=' + optionName + ']');
+
+    for (var i = 0; i < valuesToEnable.length; i++) {
+      enableVariantOption(group, valuesToEnable[i]);
+    }
+  }                                          
+
+  function getCurrentOptions() {
+    var currentOptions = [];
+    for (let i=0; i < productConfigs.length; i++) {
+      var element = productConfigs[i];
+      var currentOption = {};
+
+      // Skip size as it's not a real variant option
+      if (element.dataset.optionPosition === 'OptionSize') {
+        continue;
+      }
+        
+	  // Skip diamond as it's not a real variant option
+        if(element.dataset.optionPosition === 'OptionDiamond') {
+        continue;
+        }
+
+      if (element.checked) {
+        currentOption.value = element.value;
+        currentOption.index = element.dataset.optionPosition;
+        currentOptions.push(currentOption);
+      }
+    }
+
+    return currentOptions;
+  }
+
+  function getVariantFromOptions(variants) {
+    var selectedValues = getCurrentOptions();
+    if (!selectedValues || !variants) {
+      return;
+    }
+
+    var found = null;
+
+    for (let i=0; i < variants.length; i++) {
+      var match = true;
+      var variant = variants[i];
+
+      for (j=0; j < selectedValues.length; j++) {
+        option = selectedValues[j];
+        optionName = option.index.toLowerCase();
+
+        if (match) {
+          // Set match to false on first mismatch and break
+          match = (variant[optionName] === option.value);
+        }
+      }
+
+      if (match) {
+        found = variant;
+        break;
+      }
+    }
+
+    return found;
+  }
+
+  function setCurrentVariantAvailability(variant, variantsObject) {
+    var valuesToEnable = {
+      option1: [],
+      option2: [],
+      option3: []
+    };
+
+    // Disable all options to start
+    const inputWrappers = document.querySelectorAll('.c-product__configurator__option__input-wrapper');
+
+    for (let i = 0; i < inputWrappers.length; i++) {
+      inputWrappers[i].querySelector('input').setAttribute('disable', '');
+      inputWrappers[i].querySelector('label').classList.add('disable');
+    }
+
+    // Combine all available variants
+    var availableVariants = variantsObject.filter(function(el) {
+      if (variant.id === el.id) {
+        return false;
+      }
+
+      // Option 1
+      if (variant.option2 === el.option2 && variant.option3 === el.option3) {
+        return true;
+      }
+
+      // Option 2
+      if (variant.option1 === el.option1 && variant.option3 === el.option3) {
+        return true;
+      }
+
+      // Option 3
+      if (variant.option1 === el.option1 && variant.option2 === el.option2) {
+        return true;
+      }
+    });
+
+
+    // IE11 can't handle shortform of {variant} so extra step is needed
+    var variantObject = {
+      variant: variant
+    };
+
+    availableVariants = Object.assign({}, variantObject, availableVariants);
+
+    // Loop through each available variant to gather variant values
+    for (var property in availableVariants) {
+      if (availableVariants.hasOwnProperty(property)) {
+        var item = availableVariants[property];
+        var option1 = item.option1;
+        var option2 = item.option2;
+        var option3 = item.option3;
+
+        if (option1) {
+          if (valuesToEnable.option1.indexOf(option1) === -1) {
+            valuesToEnable.option1.push(option1);
+          }
+        }
+        if (option2) {
+          if (valuesToEnable.option2.indexOf(option2) === -1) {
+            valuesToEnable.option2.push(option2);
+          }
+        }
+        if (option3) {
+          if (valuesToEnable.option3.indexOf(option3) === -1) {
+            valuesToEnable.option3.push(option3);
+          }
+        }
+      }
+    }
+
+    // Have values to enable, separated by option index
+    if (valuesToEnable.option1.length) {
+      enableVariantOptionByValue(valuesToEnable.option1, 'Option1');
+    }
+    if (valuesToEnable.option2.length) {
+      enableVariantOptionByValue(valuesToEnable.option2, 'Option2');
+    }
+    if (valuesToEnable.option3.length) {
+      enableVariantOptionByValue(valuesToEnable.option3, 'Option3');
+    }
+  }
+
+  // Close configurator without saving
+  function closeConfigurator () {
+    // Get value of product option (hidden input)
+    const saveProductConfig = document.querySelector('.js-save-product-config');
+    const productOption = saveProductConfig.getAttribute('data-product-option');
+    savedOptionElement = document.querySelector('#' + productOption + ' [selected]');
+
+    // Restore saved option and variant image
+    if (savedOptionElement) {
+      savedValue = savedOptionElement.value;
+      const optionElement = document.querySelector('.c-product__configurator [data-option-position="' + productOption + '"][value="' + savedValue + '"]');
+
+      const evt = document.createEvent('MouseEvents');
+      evt.initEvent('click', false, true);
+      optionElement.dispatchEvent(evt);
+    }
+
+    // Hide option config, slide out configurator, unhide product info
+    document.querySelector('.c-product__configurator').classList.toggle('hide');
+    document.querySelector('.c-product__configurator__option:not(.hide)').classList.toggle('hide');
+    document.querySelector('.c-product__main').classList.toggle('collapsed');
+    document.querySelector('.c-product__info').classList.toggle('hide');
+  }
+  
+{% endjavascript %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+<script>
+  // $( document ).ready(function() {
+  //   jQuery("#tw-vs").click();
+  // });
+  
+  $('.js-save-product-config').click(function() {
+
+    if($('#naturlig').is(':checked')) {
+     if($('#tw-vs-lab').is(':checked')) {
+      $("#tw-vs").click();
+      $("#tw-vs").prop('checked', true);
+      // alert("TW VS Natural is checked");
+     } else if($('#w-si-lab').is(':checked')) {
+      $("#w-si").click();
+      $("#w-si").prop('checked', true);
+      // alert("W SI Natural is checked");
+     }
+ } else if($('#lab-dyrket').is(':checked')) {
+     if($('#tw-vs').is(':checked')) {
+         $("#tw-vs-lab").click();
+         $("#tw-vs-lab").prop('checked', true);
+         // alert("TW VS Laboratory is checked");
+     } else if($('#w-si').is(':checked')) {
+          $("#w-si-lab").click();
+         // $("#tw-vs-lab").prop('checked', true);
+          // alert("W SI Laboratory is checked");
+     }
+ }
+});
+  
+$('body').click(function(){
+  $(".c-product__option__label span").text(function () {
+        return $(this).text().replace("TW / VS-lab", "TW / VS");
+    });
+});
+
+$('body').click(function(){
+  $(".c-product__option__label span").text(function () {
+        return $(this).text().replace("W / SI-lab", "W / SI");
+    });
+});
+
+</script>
+<style> 
+ .tw-vs-lab,.w-si-lab {
+    display: none !important;
+    opacity: 0 !important;
+} 
+</style>
+
+
+<!--   {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
+                
+<div class="header-secondary waypoint-active" data-waypoint="sticky" style="postion:absolute;">
+  <div class="header-placeholder"></div>
+    <div class="header-sticky">
+      <div class="grid">
+        <div class="thumbnail-column">
+            <a href="{{ product.url }}?variant={{ variant.id }}" class="c-product-card__link">
+              <img class="" src="{{ current_variant.featured_image | image_url }}" style="width:20%;">
+            </a>
+        </div>
+        <div class="title-column">
+          <div class="column-inner">
+            <a><h4>{{ product.title }}</h4></a>
+          </div>
+        </div>
+        <div class="button-container">
+          <a class="add-to-cart">
+            Add to bag | <span class="price" data-product-price="">$11,899.00</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->

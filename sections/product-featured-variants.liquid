@@ -1,0 +1,100 @@
+{%- comment -%}
+  Static section for displaying featured variants of a single product on product pages
+{%- endcomment -%}
+
+{%- if section.settings.enabled != blank and section.settings.enabled == true %}
+
+  {% comment %}
+    Loop through collections for the product and match agains the "kategoristruktur" links
+    to find the deepest nested level collection. Assuming max nested depth = 3.
+  {% endcomment %}
+  {% assign matchedLink = null %}
+
+  {% assign productCollections = product.collections %}
+  {% assign matchedLink = null %}
+  {% assign matchedLevel = 0 %}
+
+  {% for collection in productCollections %}
+    {% for link in linklists.kategoristruktur.links %}
+      {% if collection.title == link.title %}
+        {% if matchedLevel < 1 %}
+          {% assign matchedLink = link %}
+          {% assign matchedLevel = 1 %}
+        {% endif %}
+      {% else %}
+        {% if link.links != blank %}
+          {% for child_link in link.links %}
+            {% if collection.title == child_link.title %}
+              {% if matchedLevel < 2 %}
+                {% assign matchedLink = child_link %}
+                {% assign matchedLevel = 2 %}
+              {% endif %}
+            {% else %}
+              {% if child_link.links != blank %}
+                {% for grandchild_link in child_link.links %}
+                  {% if collection.title == grandchild_link.title %}
+                    {% if matchedLevel < 3 %}
+                      {% assign matchedLink = grandchild_link %}
+                      {% assign matchedLevel = 3 %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  {% comment %}
+    Output (only if there are more in this collection):
+      - A billboard with text from section settings
+      - A product grid with products from the matched collection
+  {% endcomment %}
+  {% if matchedLink.object.products_count > 1 %}
+    <div class="s-featured-variants">
+      {%- include 'billboard' with
+        text_align: 'center',
+        full_width: true,
+        pre_title: section.settings.pre_title,
+        title: section.settings.title,
+        text: section.settings.text,
+      -%}
+    </div>
+
+    {% include 'grid--products' with
+      products: matchedLink.object.products
+      currentProduct: product
+    %}
+  {% endif %}
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Featured variants",
+    "settings": [
+      {
+         "type":      "checkbox",
+         "id":        "enabled",
+         "label":     "Enabled",
+         "default":   true
+      },
+      {
+        "id": "pre_title",
+        "type": "text",
+        "label": "Pre-title"
+      },
+      {
+        "id": "title",
+        "type": "text",
+        "label": "Title"
+      },
+      {
+        "id": "text",
+        "type": "richtext",
+        "label": "Description"
+      }
+    ]
+  }
+{% endschema %}

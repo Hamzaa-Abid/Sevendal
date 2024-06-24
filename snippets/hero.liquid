@@ -1,0 +1,34 @@
+{% comment %} <div class="c-hero c-hero--{{layout}} c-billboard--full-width collection-header" style="background-image: url({{ image | img_url: 'master' }})" {% endcomment %}
+{% if layout != blank %}
+  {% assign layout = layout %}
+{% else %}
+  {% assign layout = 'standard' %}
+{% endif %}
+{% case collection.title %}
+ {% when "Ringer" %}<div class="c-billboard--full-width collection-header" 
+  {% when "Enstensringer" %}
+  <div class="c-billboard--full-width collection-header" 
+{% else %}
+   <div class="c-billboard--full-width collection-header"
+{% endcase %}>
+  <div class="c-hero__inner">
+
+    <div class="c-hero__content">
+      <h1 class="c-hero__title h1-display">{{ title }}</h1>
+
+      {% if lead != blank %}
+        <div class="c-hero__lead rte">
+          {{ lead }}
+        </div>
+      {% endif %}
+
+    </div>
+
+<!--     <div class="c-hero__image">
+      {% if image %}
+        <img src="{% if blog %}{{ image }}{% else %}{{ image | img_url: 'medium'}}{% endif %}">
+      {% endif %}
+    </div> -->
+
+  </div>
+</div>

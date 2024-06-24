@@ -1,0 +1,71 @@
+{%- comment -%}
+  Dynamic section displaying articles from the same blog
+{%- endcomment -%}
+
+{% assign currentArticleId = article.id %}
+{% assign skippedCurrent = false %}
+
+<section>
+  <h3 class="text-center">Relaterte artikler</h3>
+    {%- comment -%}
+    Due to accessibility requirements, the Blog entries list functions
+    as a list of content items. Non-visual users will expect lists of content
+    to appear in a list structure, allowing for easier understanding and navigation of list items.
+  {%- endcomment -%}
+  <div class="blog-post c-grid c-grid--columns-{% if section.settings.post_limit < 3 %}2{% else %}3{% endif %}">
+    <ul class="c-grid__items list-unstyled">
+      {% for article in blog.articles limit: 4 %}
+
+        {% if article.id == currentArticleId %}
+          {% assign skippedCurrent = true %}
+          {% continue %}
+        {% endif %}
+
+        {% if forloop.index == 4 and skippedCurrent != true %}
+          {% continue %}
+        {% endif %}
+
+        <li class="blog-post__item c-grid__item">
+          <div class="c-tease c-tease--post">
+            {%- comment -%}
+              Due to accessibility requirements, we are regrouping all logical elements into the <a> element.
+              If a screen reader user is tabbing through the page, or browsing by links on the page with duplicated links,
+              they will appear identical which may lead to a confusing user experience.
+            {%- endcomment -%}
+            <a class="c-tease__image" href="{{ article.url }}">
+              {% if article.image %}
+                {% include 'responsive-image' with
+                    image: article.image,
+                    max_width: 400,
+                    max_height: 400
+                %}
+              {% endif %}
+            </a>
+
+            <div class="c-tease__content">
+              {% if article.tags.size > 0 %}
+                <div class="c-tease__meta">
+                  {%- comment -%}
+                    The Tag link list functions as a list of content items.
+                    Non-visual users will expect lists of content to appear
+                    in a list structure, allowing for easier understanding and navigation of list items.
+                  {%- endcomment -%}
+                  <ul class="list-unstyled"aria-label="{{ 'blogs.article.tags' | t }}">
+                    {% for tag in article.tags %}
+                      <li class="c-tag faded"><a href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+
+              <a href="{{ article.url }}" class="link-unstyled">
+                <h3 class="c-tease__title h4">{{ article.title }}</h3>
+              </a>
+            </div>
+          </div>
+        </li>
+
+      {% endfor %}
+    </ul>
+  </div>
+</section>

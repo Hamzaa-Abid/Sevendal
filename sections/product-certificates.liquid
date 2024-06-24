@@ -1,0 +1,60 @@
+{% if section.blocks != blank and section.settings.enabled == true %}
+  {%- include 'grid' with
+    grid_class: 'c-certificates'
+    grid_title: section.settings.section_title,
+    grid_items: section.blocks
+  -%}
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Certificates",
+    "max_blocks": 6,
+    "settings": [
+      {
+        "type":      "checkbox",
+        "id":        "enabled",
+        "label":     "Enable on product pages",
+        "default":   true
+      },
+      {
+        "id": "section_title",
+        "type": "text",
+        "label": "Section title",
+        "default": "Sertifikater"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "select",
+        "name": "Certificate",
+        "settings": [
+          {
+            "id": "image",
+            "type": "image_picker",
+            "label": "Image"
+          },
+          {
+            "id": "image_link",
+            "type": "url",
+            "label": "Link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Certificates",
+        "category": "Grid",
+        "blocks": [
+          {
+            "type": "select"
+          },
+          {
+            "type": "select"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,22 @@
+{% comment %}
+  Snippet for displaying design section with text from metafield
+{% endcomment %}
+
+{% assign design_description = product.metafields['product']['design_description'] %}
+{% if design_description == blank %}
+  {% assign design_description = product.description %}
+{% endif %}
+
+<div class="section-block">
+  {% include 'billboard' with
+    layout: 'split',
+    image_right: false,
+    text_align: 'left',
+    full_width: true,
+    background_color: 'secondary-background',
+    pre_title: 'Design',
+    title: product.title|escape,
+    text: design_description,
+    image: product.featured_image
+  %}
+</div>

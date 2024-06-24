@@ -1,0 +1,287 @@
+{%- comment -%}
+  This is a required section for the Shopify Theme Store.
+  It is available in the "Header" section in the theme editor.
+
+  Theme Store required settings
+  - Show announcement
+  - Text: message to announce
+  - Link: link of the announcement bar
+
+  Theme Store optional settings
+  - Home page only: only shows on the home page
+{%- endcomment -%}
+<section data-section-id="{{ section.id }}" data-section-type="header"/>
+  {%- if section.settings.announcement_bar_enabled -%}
+    <div>
+      {%- if section.settings.announcement_bar_home_page_only == false or template.name == 'index' -%}
+        {%- if section.settings.announcement_bar_link != blank -%}
+          <a href="{{ section.settings.announcement_bar_link }}">
+            {{ section.settings.announcement_bar_text | escape }}
+          </a>
+        {%- else -%}
+          <p>{{ section.settings.announcement_bar_text | escape }}</p>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{% if template == 'index' %}
+  <header role="banner" class="main-header">
+    {%- else -%}
+  <header role="banner" class="main-header">{% endif %}
+    <div class="main-header__inner">
+      <button class="mobile-menu__trigger" onclick="document.body.classList.toggle('mobile-menu-active')" aria-label="menu">
+        <span class="open">{% include 'icon-hamburger' %}</span>
+        <span class="close">{% include 'icon-close' %}</span>
+      </button>
+
+      <nav role="navigation" class="main-header__nav main-header__nav--primary">
+        <ul class="list-unstyled">
+          {% for link in linklists[section.settings.main_menu].links %}
+            {% if link.links != blank %}
+              <li class="{% if link.active %}current{% endif %}">
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                </a>
+                <div class="main-header__nav__sub-menu text-center">
+                  <div class="main-header__nav__sub-menu__inner">
+                    <ul class="list-unstyled">
+                      {% for childlink in link.links %}
+
+                        <ol>
+                          <a href="{{ childlink.url }}">
+                            {% assign collectionHandle = childlink.title|handleize %}
+                            <div class="menu_collection_img">
+                            		
+                              	<div class="first_img">
+                              		<img loading="lazy" src=" {{ collections[collectionHandle].metafields.banner.first_image }}" />
+                              	</div>
+                              	<div class="second_img">
+                              		<img loading="lazy" src=" {{ collections[collectionHandle].metafields.banner.second_image }}" />
+                              	</div>
+                              <div class="megamenutitle">{{ childlink.title }}</div>
+                            </div>
+<!--                             {% include 'responsive-image' with
+                              image: {{collections[collectionHandle].image}},
+                              max_width: 180,
+                              max_height: 180
+                            %}
+                            
+                             {% include 'responsive-image' with
+                              image:  {{ collections[collectionHandle].metafields.banner.second_image }},
+                              max_width: 180,
+                              max_height: 180
+                            %} -->
+                            
+                          </a>
+                        </ol>
+                      {% endfor %}
+                    </ul>
+                  </div>
+
+                  <div class="main-header__nav__sub-menu__bottom-container">
+                    <a class="main-header__nav__sub-menu__link-all" href="{{ link.url }}">Se alle {{ link.title | downcase }}</a>
+                  </div>
+                </div>
+              </li>
+            {% else %}
+              <li class="{% if link.active %}current{% endif %}">
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <a href="/" class="main-header__logo">
+        {% if section.settings.logo != blank %}
+          {% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+          <img src="{{ section.settings.logo | img_url: image_size }}"
+              srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+              alt="{{ section.settings.logo.alt | default: shop.name }}">
+        {% else %}
+          {{ shop.name }}
+        {% endif %}
+      </a>
+
+      <nav role="navigation" class="main-header__nav main-header__nav--secondary">
+        <ul class="list-unstyled">
+          {% for link in linklists[section.settings.secondary_menu].links %}
+            {% if link.links != blank %}
+              <li>
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                  {% include 'icon-arrow-down' %}
+                </a>
+                <ul>
+                  {% for childlink in link.links %}
+                    <li>
+                      <a href="{{ childlink.url }}">
+                        {{ childlink.title }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% else %}
+              <li>
+                <a href="{{ link.url }}">
+                  {{ link.title }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <div class="main-header__tools">
+        <a class="main-header__tools__cart link-unstyled" href="/cart" aria-label="cart">
+          <span class="main-header__tools__cart__icon">{% include 'icon-cart' %}</span>
+          <span class="main-header__tools__cart__count {% if cart.item_count < 1 %}hide{% endif %}">{{ cart.item_count }}</span>
+        </a>
+
+        {% if shop.customer_accounts_enabled %}
+          <ul>
+            {% if customer %}
+              <li>
+                {% if customer.first_name != blank %}
+                  {% capture first_name %}<a href="/account">{{ customer.first_name }}</a>{% endcapture %}
+                  {{ 'layout.customer.logged_in_as_html' | t: first_name: first_name }}
+                {% else %}
+                  <a href="/account">{{ 'layout.customer.account' | t }}</a>
+                {% endif %}
+              </li>
+              <li>
+                {{ 'layout.customer.log_out' | t | customer_logout_link }}
+              </li>
+            {% else %}
+              <li>
+                {{ 'layout.customer.log_in' | t | customer_login_link }}
+              </li>
+              <li>
+                {{ 'layout.customer.create_account' | t | customer_register_link }}
+              </li>
+            {% endif %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+</section>
+
+{% if section.settings.logo != blank %}
+  <style>
+    .logo-image {
+      display: block;
+      max-width: {{ section.settings.logo_max_width }}px;
+    }
+  </style>
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Header",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Announcement bar"
+      },
+      {
+        "type": "checkbox",
+        "id": "announcement_bar_enabled",
+        "label": "Show announcement",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "announcement_bar_home_page_only",
+        "label": "Show on home page only",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "announcement_bar_text",
+        "label": "Announcement text",
+        "default": "Announce something here"
+      },
+      {
+        "type": "url",
+        "id": "announcement_bar_link",
+        "label": "Announcement link",
+        "info": "Optional"
+      },
+      {
+        "type": "header",
+        "content": "Header"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo image"
+      },
+      {
+        "type": "range",
+        "id": "logo_max_width",
+        "min": 50,
+        "max": 450,
+        "step": 10,
+        "unit": "px",
+        "label": "Custom logo width",
+        "default": 250
+      },
+      {
+        "type": "link_list",
+        "id": "main_menu",
+        "label": "Primary menu",
+        "default": "main-menu"
+      },
+      {
+        "type": "link_list",
+        "id": "secondary_menu",
+        "label": "Secondary menu"
+      }
+    ]
+  }
+{% endschema %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "{{ shop.name }}",
+  {% if section.settings.logo %}
+    {% assign image_size = section.settings.logo.width | append:'x' %}
+    "logo": "https:{{ section.settings.logo | img_url: image_size }}",
+  {% endif %}
+  "sameAs": [
+    "{{ settings.social_twitter_link }}",
+    "{{ settings.social_facebook_link }}",
+    "{{ settings.social_pinterest_link }}",
+    "{{ settings.social_instagram_link }}",
+    "{{ settings.social_tumblr_link }}",
+    "{{ settings.social_snapchat_link }}",
+    "{{ settings.social_youtube_link }}",
+    "{{ settings.social_vimeo_link }}"
+  ],
+  "url": "{{ shop.url }}{{ page.url }}"
+}
+</script>
+
+{% if template.name == 'index' %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": "{{ shop.name }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ shop.url }}/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "url": "{{ shop.url }}{{ page.url }}"
+    }
+  </script>
+{% endif %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>

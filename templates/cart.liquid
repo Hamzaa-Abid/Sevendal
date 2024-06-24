@@ -1,0 +1,135 @@
+<div class="t-cart">
+{% if cart.item_count > 0 %}
+  <h1 class="t-cart__title h2">{{ 'cart.general.title' | t }}</h1>
+
+  <form action="/cart" method="post" novalidate>
+    <table class="t-cart__table responsive-table">
+      <thead class="small--hide">
+        <tr>
+          <th class="t-cart__table__header--product" colspan="2">{{ 'cart.label.product' | t }}</th>
+          <th class="t-cart__table__header--price">{{ 'cart.label.price' | t }}</th>
+          <th class="t-cart__table__header--quantity">{{ 'cart.label.quantity' | t }}</th>
+          <th class="t-cart__table__header--total">{{ 'cart.label.total' | t }}</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for item in cart.items %}
+
+        {% comment %}
+
+        Cart Item Template
+        =====================
+        The data-label attributes on <td> elements are mobile-friendly
+        helpers used for responsive-table labels
+        {% endcomment %}
+
+          <tr class="responsive-table-row">
+
+            <td class="t-cart__table__product-image" data-label="{{ 'customer.order.product' | t }}">
+
+              {% if item.image != blank %}
+                <a href="{{ item.url | within: collections.all }}">
+                  {{ item | img_url: '100x100' | img_tag: item.title }}
+                </a>
+              {% endif %}
+
+            </td>
+            <td class="t-cart__table__product-text small">
+              <a class="t-cart__table__product-text__title" href="{{ item.url }}">{{ item.product.title }}</a>
+
+              {% unless item.product.has_only_default_variant %}
+                <div>{{ item.variant.title }}</div>
+              {% endunless %}
+
+              {%- assign property_size = item.properties | size -%}
+
+              {% if property_size > 0 %}
+                {% for p in item.properties %}
+                  {% unless p.last == blank %}
+                  {{ p.first }}:
+
+                  {% if p.last contains '/uploads/' %}
+                    <a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>
+                  {% else %}
+                    {{ p.last }}
+                  {% endif %}
+
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              <div class="remove-item">
+                <a href="/cart/change?line={{ forloop.index }}&amp;quantity=0">
+                  <small>{{ 'cart.general.remove' | t }}</small>
+                </a>
+              </div>
+            </td>
+            <td class="t-cart__table__price" data-label="{{ 'cart.label.price' | t }}">
+              {% if item.original_line_price != item.line_price %}
+                <span class="visually-hidden">{{ 'cart.label.discounted_price' | t }}</span>
+                {{ item.price | money }}
+                <span class="visually-hidden">{{ 'cart.label.original_price' | t }}</span>
+                <s>{{ item.original_price | money }}</s>
+              {% else %}
+                {{ item.price | money }}
+              {% endif %}
+            </td>
+            <td class="t-cart__table__quantity" data-label="{{ 'cart.label.quantity' | t }}">
+              <input type="number"
+                     name="updates[]"
+                     id="updates_{{ item.key }}"
+                     value="{{ item.quantity }}"
+                     min="0"
+                     aria-label="{{ 'cart.general.item_quantity' | t }}">
+            </td>
+            <td class="t-cart__table__total" data-label="{{ 'cart.label.total' | t }}">
+              {{ item.line_price | money }}
+            </td>
+          </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="t-cart__subtotal">
+      <p>{{ 'cart.general.subtotal' | t }}</p>
+      <p class="t-cart__total h5">{{ cart.total_price | money }}</p>
+      {% if cart.total_discounts > 0 %}
+        <p>{{ 'cart.general.savings' | t }} {{ cart.total_discounts | money }}</p>
+      {% endif %}
+    </div>
+
+    {% if settings.cart_notes_enable %}
+      <div class="t-cart__note">
+        <label for="CartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
+        <textarea name="note" id="CartSpecialInstructions">{{ cart.note }}</textarea>
+      </div>
+    {% endif %}
+
+    <p>{{ 'cart.general.shipping_at_checkout' | t }}</p>
+    <input class="c-btn c-btn--black" type="submit" name="update" value="{{ 'cart.general.update' | t }}">
+    <input class="c-btn c-btn--black" type="submit" name="checkout" value="{{ 'cart.general.checkout' | t }}">
+  </form>
+{% else %}
+  <h1>{{ 'cart.general.title' | t }}</h1>
+
+  {% comment %}
+  Cart empty state
+  {% endcomment %}
+  <div class="supports-cookies">
+    <p>{{ 'cart.general.empty' | t }}</p>
+    <p>{{ 'cart.general.continue_browsing_html' | t }}</p>
+  </div>
+
+  {% comment %}
+  Cart no cookies state
+  ---------------------
+  Browser cookies are required to use the cart. If cookies aren't enabled in the
+  browser a message is displayed prompting the user to enable them.
+  {% endcomment %}
+  <div class="supports-no-cookies">
+    <p>{{ 'cart.general.cookies_required' | t }}</p>
+  </div>
+{% endif %}
+</div>

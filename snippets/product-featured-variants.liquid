@@ -1,0 +1,62 @@
+{% comment %}
+  Snippet for displaying variants of a single product
+{% endcomment %}
+
+
+{%- comment -%}
+    Get available values in 'materiale' and 'karat' options
+{%- endcomment -%}
+{% assign product_materials = product.options_by_name['Materiale'].values %}
+{% assign product_materials_length = product_materials | size %}
+{% assign product_carat = product.options_by_name['Karat'].values %}
+
+{%- comment -%}
+    Get indexes of 'materiale' and 'karat' inside options
+{%- endcomment -%}
+{% for option in product.options %}
+  {% if option == 'Materiale' %}
+    {% assign material_option_index = forloop.index0 %}
+  {% endif %}
+  {% if option == 'Karat' %}
+    {% assign carat_option_index = forloop.index0 %}
+  {% endif %}
+{% endfor %}
+
+<div class="c-grid c-grid--slider c-grid--columns-{% if product_materials_length > 3 %}4{% else %}{{product_materials_length}}{% endif %}">
+  <div class="c-grid__items">
+    {% for material in product_materials %}
+      {% assign material_matched = false %}
+      {%- comment -%}
+          Loop through variants and generate markup when matched.
+          Store all prices to eventually display the lowest.
+      {%- endcomment -%}
+        {% for variant in product.variants %}
+          {% if variant.options[material_option_index] == material %}
+            {% unless material_matched %}
+              <div class="c-grid__item">
+                <div class="c-product-card">
+                  <a href="{{variant.url}}" class="c-product-card__link">
+                    <img loading="lazy" class="c-product-card__image" src="{{variant.image|img_url}}">
+                  </a>
+
+                  <div class="c-product-card__footer">
+                    <h6 class="c-grid__item__title c-product-card__title">{{material}}</h6>
+                    <div class="c-product-card__footer__bottom-line">
+                      <div class="small">{{product.title}}</div>
+
+              {% assign material_matched = true %}
+            {% endunless %}
+          {% endif %}
+        {% endfor %}
+
+                    <div class="c-product-card__price font-display">fra {{ product.price_min | money }}</div>
+                  </div>
+                </div>
+        {% if material_matched %}
+            </div>
+          </div>
+        {% endif %}
+    {% endfor %}
+
+  </div>
+</div>

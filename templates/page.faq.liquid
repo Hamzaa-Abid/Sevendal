@@ -1,0 +1,90 @@
+{% assign lead = 'Her finner du svar på det aller meste, hvis du ikke finner det du lurer på kan du alltid kontakte oss.' %}
+
+<div class="t-faq">
+<div class="
+  c-billboard
+  c-billboard--split
+  c-billboard--full-width
+  u-bg-primary-background
+  
+  
+" style="
+    background: #fffcf7;
+    color: #000;
+  padding-top:35px;
+  padding-bottom:100px;
+">
+  <h1 class="t-page__title">Ofte stilte spørsmål</h1>
+Her finner du svar på det aller meste, hvis du ikke finner det du lurer på kan du alltid kontakte oss.</div>
+
+
+  <div class="faq-container">
+   <ul class="js-faq-index">
+      </ul>
+    <div class="rte js-faq-items">
+      {{ page.content }}
+    </div>
+  </div>
+</div>
+<script>
+
+  /**
+   * Function for slugifying strings
+   * credits https://gist.github.com/hagemann/382adfc57adbd5af078dc93feef01fe1
+   */
+  function slugify(string) {
+    const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+    const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+    const p = new RegExp(a.split('').join('|'), 'g')
+
+    return string.toString().toLowerCase()
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+      .replace(/&/g, '-and-') // Replace & with 'and'
+      .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, '') // Trim - from end of text
+  }
+
+  /**
+   * Create index of faq categories in sidebar
+   */
+  const faqIndex = document.querySelector('.js-faq-index')
+  const faqCats = document.querySelectorAll('.js-faq-items > ul > li')
+
+  // Get all faq categories from rte content and add to index
+  for (let i=0; i < faqCats.length; i++) {
+
+    // Slugify category name
+    faqCatSlug = slugify(faqCats[i].textContent)
+
+    // Add id for anchor reference
+    faqCats[i].setAttribute('id', faqCatSlug)
+
+    // Create elements to add
+    let faqCat = document.createElement('li')
+    let faqCatLink = document.createElement('a')
+    faqCatLink.setAttribute('href', '#' + faqCatSlug)
+    let faqCatContent = document.createTextNode(faqCats[i].textContent)
+    faqCatLink.appendChild(faqCatContent)
+    faqCat.appendChild(faqCatLink)
+
+    // Add to sidebar
+    faqIndex.appendChild(faqCat)
+  }
+
+  /**
+   * Set up accordion functionality on questions
+   */
+   const faqCatQuestions = document.querySelectorAll('.js-faq-items > ul > ul > li')
+
+   for (let i=0; i < faqCatQuestions.length; i++) {
+     const faqAnswer = faqCatQuestions[i].nextElementSibling
+     faqCatQuestions[i].addEventListener('click', () => {
+       faqCatQuestions[i].classList.toggle('expanded')
+       faqAnswer.classList.toggle('expanded')
+     })
+   }
+
+</script>

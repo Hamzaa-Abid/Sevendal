@@ -1,0 +1,36 @@
+<div class="c-tease c-tease--post">
+  {% if article.image %}
+    <a class="c-tease__image" href="{{ article.url }}">
+      {% include 'responsive-image' with
+          image: article.image,
+          max_width: 400,
+          max_height: 400
+      %}
+    </a>
+  {% endif %}
+
+  <div class="c-tease__content">
+    {% if article.tags.size > 0 %}
+      <div class="c-tease__meta">
+        {%- comment -%}
+          The Tag link list functions as a list of content items.
+          Non-visual users will expect lists of content to appear
+          in a list structure, allowing for easier understanding and navigation of list items.
+        {%- endcomment -%}
+        <ul class="list-unstyled" aria-label="{{ 'blogs.article.tags' | t }}">
+          {% for tag in article.tags %}
+            <li class="c-tag faded"><a href="https://sevendal.com/blogs/inspirasjon-og-kunnskap/tagged/{{ tag | handle }}">{{ tag }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <a href="{{ article.url }}" class="link-unstyled">
+      <h3 class="c-tease__title">{{ article.title }}</h3>
+    </a>
+
+    {% if excerpt %}
+      <div class="c-tease__excerpt">{{ article.excerpt }}</div>
+    {% endif %}
+  </div>
+</div>

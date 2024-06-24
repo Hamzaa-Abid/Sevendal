@@ -1,0 +1,73 @@
+{% paginate blog.articles by 9 %}
+
+  {%- assign blog_title = blog.title -%}
+
+  {% if current_tags %}
+    {% capture blog_title %}{{ blog.title | link_to: blog.url }} &mdash; {{ current_tags.first }}{% endcapture %}
+  {% endif %}
+
+  <div class="t-blog__header">
+    <div class="t-blog__header__inner">
+      <div class="pre-title">Blogg</div>
+      <h1 class="t-blog__title">{{ blog.title }}</h1>
+<!--       <div class="t-blog__description">{{ blog.metafields['blog']['description'] }}</div> -->
+    </div>
+  </div>{{ blog.metafields['blog']['description'] }}
+
+  {%- comment -%}
+      List all tags within this blog
+  {%- endcomment -%}
+  {% if blog.all_tags.size > 0 %}
+    <nav role="navigation" class="c-category-nav">
+    <ul class="list-unstyled">
+      <li class="{% if current_tags == null %}current{% endif %}"><a href="{{blog.url}}">Alle</a>
+      {% for tag in blog.all_tags %}
+        {% if current_tags contains tag %}
+          <li class="current">{{ tag | link_to_tag: tag }}</li>
+        {% else %}
+          <li>{{ tag | link_to_tag: tag }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% comment %}
+
+  Article Previews
+  ====================
+  {% endcomment %}
+
+  <div class="t-blog">
+
+    <div class="t-blog__featured-articles c-grid c-grid--columns-2">
+      <ul class="c-grid__items list-unstyled">
+        {% for article in blog.articles limit: 2 %}
+          <li class="c-grid__item">
+            {% include 'tease-post' with
+              article: article,
+              excerpt: true
+            %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="t-blog__all-articles c-grid c-grid--columns-3">
+      <ul class="c-grid__items list-unstyled">
+        {% for article in blog.articles offset: 2 %}
+          <li class="c-grid__item">
+            {% include 'tease-post' with
+              article: article
+            %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  {% if paginate.pages > 1 %}
+    {% include 'pagination' %}
+  {% endif %}
+
+{% endpaginate %}

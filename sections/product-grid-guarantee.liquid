@@ -1,0 +1,77 @@
+{%- comment -%}
+  Grid section
+
+  Settings
+  - Section title
+  - Grid item blocks:
+    - Vignette
+    - Title
+    - Text
+
+{%- endcomment -%}
+
+{% if section.blocks != blank and section.settings.enabled == true %}
+  {%- include 'grid' with
+    heading_font_display: true,
+    grid_title: section.settings.section_title,
+    grid_items: section.blocks
+  -%}
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Grid",
+    "max_blocks": 6,
+    "settings": [
+      {
+        "type":      "checkbox",
+        "id":        "enabled",
+        "label":     "Enable",
+        "default":   true
+      },
+      {
+        "id": "section_title",
+        "type": "text",
+        "label": "Section title",
+        "default": "Title"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "select",
+        "name": "Grid item",
+        "settings": [
+          {
+            "id": "image",
+            "type": "image_picker",
+            "label": "Image"
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "label": "Title"
+          },
+          {
+            "id": "text",
+            "type": "richtext",
+            "label": "Text"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Grid",
+        "category": "Grid",
+        "blocks": [
+          {
+            "type": "select"
+          },
+          {
+            "type": "select"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

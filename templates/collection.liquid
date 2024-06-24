@@ -1,0 +1,258 @@
+{%- comment -%}
+    Template for displaying collections.
+{%- endcomment -%}
+
+{% include 'hero' with
+  layout: 'standard',
+  title: collection.title,
+  lead: collection.description
+  image: collection.image.src
+%}
+
+{% comment %}
+  Loop through our "kategoristruktur" links and match current collection 
+{% endcomment %}
+{% assign matchedLink = null %}
+
+{% for link in linklists.kategoristruktur.links %} 
+  {% if collection.title == link.title %}
+    {% assign matchedLink = link %}
+  {% else %}
+    {% if link.links != blank %}
+      {% for child_link in link.links %}
+        {% if collection.title == child_link.title %} 
+          {% assign matchedLink = child_link %}
+        {% else %}
+          {% if child_link.links != blank %}
+            {% for grandchild_link in child_link.links %}
+              {% if collection.title == grandchild_link.title %}
+                {% assign matchedLink = grandchild_link %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endif %} 
+  {% endif %}
+{% endfor %}
+
+
+{% if matchedLink %}
+  {% if matchedLink.links %}
+    {%- comment -%}
+        List all subcollections according to the "kategoristruktur" links
+    {% endcomment %}
+    <nav role="navigation" class="t-collection__category-nav c-category-nav">
+      <ul class="list-unstyled">
+        {% for link in matchedLink.links %}
+          {% assign linkHandle = link.object.handle %}
+          <li>
+            <a href="#{{ linkHandle }}">{{ link.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+{% endif %}
+
+{% comment %}
+    Output subcollections with products
+{% endcomment %}
+{% if collection.products_count | times: 1 %}
+  <div class="t-collection text-center">
+    {% comment %}
+      Loop through sublinks and output the corresponding collection
+    {% endcomment %}
+    {% if matchedLink.links != blank %}
+      {% for sublink in matchedLink.links %}
+        {% assign currentCollection = sublink.object %}
+
+        {%- comment -%}
+            If a page with the same name as the product exists – and has a content size above 0 – link to it
+        {%- endcomment -%}
+        {% assign content_size = pages[tag_handle].content | size | times: 1 %}
+        {% if content_size > 0 %}
+          {%- comment -%}
+              Define plural form the product name for the page link, fall back to tag handle if no match
+          {%- endcomment -%}
+          {% case collection.title %}
+            {% when "Ringer" %}
+              {% assign product_text_plural = "disse ringene" %}
+            {% when "Armbånd" %}
+              {% assign product_text_plural = "disse armbåndene" %}
+            {% when "Øredobber" %}
+              {% assign product_text_plural = "disse øredobbene" %}
+            {% else %}
+              {% assign product_text_plural = {{ tag | downcase }} %}
+          {% endcase %}
+
+          {% assign button_text = 'Les mer om ' | append: {{product_text_plural}} %}
+          {% assign button_link = pages[tag_handle].url %}
+        {% else %}
+          {% assign button_text = false %}
+          {% assign button_link = false %}
+        {% endif %}
+
+        {% comment %}
+          Output billboards for the subcollection with alternate left/right alignment
+        {% endcomment %}
+        {% assign index = forloop.index | modulo:2 %}
+        {% if index == 0 %}
+          {% assign alignment = 'right' %}
+        {% else %}
+          {% assign alignment = 'left' %}
+        {% endif %}
+
+        {% include 'billboard' with
+          layout: 'split',
+          full_width: true,
+          background_color: 'primary-background',
+          text_align: {{alignment}},
+          title: {{currentCollection.title}},
+          title_id: {{currentCollection.handle}},
+          text: {{currentCollection.description}},
+          button_label: {{button_text}},
+          button_link: {{button_link}},
+          button_style: 'link',
+          image: {{currentCollection.image }}
+        %}
+
+        {% if sublink.links != blank %}
+          {%- comment -%}
+            Group products by subcollections if applicable
+          {%- endcomment -%}
+          {% for child_link in sublink.links %}
+            {% assign currentChildCollection = child_link.object %}
+
+            {% if currentChildCollection.products | times: 1 %}
+              {% include 'grid--products' with
+                title: currentChildCollection.title,
+                products: currentChildCollection.products
+              %}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% comment %}
+            No matching sub-subcollections, just list all products
+          {% endcomment %}
+          {% if currentCollection.products | times: 1 %}
+            {% include 'grid--products' with
+              products: currentCollection.products
+            %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% comment %}
+        No matching subcollections, just list all products
+      {% endcomment %}
+
+      {% if collection.products | times: 1 %}
+        {% include 'grid--products' with
+          products: collection.products
+        %}
+      {% endif %}
+
+    {% endif %}
+
+  </div>
+
+{% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"</script>
+
+
+<script>
+  var i = 0;
+  jQuery('.c-billboard__image').each(function(){
+      if (i % 2 === 0){
+         jQuery(this).css('order','2');
+      }
+      i++;
+  }); 
+</script>
+
+<div id="shopify-section-16451883074f3eb86c" class="shopify-section">
+<div class="c-grid c-grid--columns-3 ">
+    
+        <h3 class="c-grid__title h2-display">Våre garantier</h3>
+    
+
+    <div class="c-grid__items">
+        
+            <div class="c-grid__item">
+
+                
+                    
+                            <img loading="lazy" class="c-grid__item__image" src="//cdn.shopify.com/s/files/1/0298/5990/5669/files/guarantee-icon-1_small.png?v=1613539141" width="40" height="40" alt="ikon Sevendal sporbarhet diamanter">
+                    
+<h5 class="c-grid__item__title pre-title">Diamantene</h5><div class="c-grid__item__text"><p>Hos oss får du vite hvilken gruve diamanten din kommmer fra og hvor den ble slipt. Våre diamanter er etiske og 100% sporbare.</p></div></div>
+            <div class="c-grid__item">
+
+                
+                    
+                            <img loading="lazy" class="c-grid__item__image" src="//cdn.shopify.com/s/files/1/0298/5990/5669/files/guarantee-icon-2_small.png?v=1613539141" width="40" height="40" alt="ikon Sevendal etikk gull diamanter">
+                    
+<h5 class="c-grid__item__title pre-title">Gullet</h5><div class="c-grid__item__text"><p>Gullet i smykkene fra oss er utvunnet på en ansvarlig måte og bidrar til å bedre humanitære og miljømessige vilkår.</p></div></div>
+            <div class="c-grid__item">
+
+                
+                    
+                            <img loading="lazy" class="c-grid__item__image" src="//cdn.shopify.com/s/files/1/0298/5990/5669/files/guarantee-icon-3_small.png?v=1613539141" width="40" height="40" alt="ikon sevedal handverk">
+                    
+<h5 class="c-grid__item__title pre-title">Håndverket</h5><div class="c-grid__item__text"><p>Vi står bak kvaliteten på håndverket i våre smykker og tilbyr livstidsgaranti mot defekter i materialer eller håndverk.</p></div></div>
+            <div class="c-grid__item">
+
+                </div></div>
+</div>
+
+
+
+</div>
+
+<div id="shopify-section-1646221224aff0dcb4" class="shopify-section">
+<div class="
+  c-billboard
+  c-billboard--split
+  c-billboard--full-width
+  u-bg-secondary-background
+  c-billboard--image
+  
+  maxwidthsanin">
+    <div class="c-billboard__inner">
+      
+
+      <div class="c-billboard__content"><p class="c-billboard__pre-title pre-title">Moral og etikk</p><h2 class="c-billboard__title ">Vårt løfte til deg</h2>
+        <div class="c-billboard__lead"><p>Hos oss kan du være trygg på at smykkene du kjøper er laget så humant og bærekraftig som overhodet mulig. </p>
+          <p>Våre <a href=" https://sevendal.com/blogs/inspirasjon-og-kunnskap/hva-er-fordelene-med-lab-diamanter" title=diamanter>diamanter</a> er etiske og sporbare, og gullet i smykkene er ansvarlig utvunnet for å styrke humanitære og miljømessige forhold.</p>
+        <p>Vi mener det ikke skal være noe kompromiss mellom produkter av høyeste kvalitet og din samvittighet.</p></div>
+          <a class="c-billboard__button c-btn c-btn--primary" href="/pages/sevendal">Les mer om Sevendal</a></div>
+      
+        <div class="c-billboard__image">
+          <style>#Image-29362200805539-0 {
+    max-width: 780.0px;
+    max-height: 780px;
+  }
+  #ImageWrapper-29362200805539-0 {
+    max-width: 780.0px;
+
+  }
+
+  #ImageWrapper-29362200805539-0::before {
+     padding-top: 780px;
+    
+  }
+</style><div id="ImageWrapper-29362200805539-0" data-image-id="29362200805539" class="responsive-image__wrapper ">
+  <img loading="lazy" id="Image-29362200805539-0" class="responsive-image__image lazyautosizes lazyloaded" src="//cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957" data-widths="[180,360,540,720,900,1080,1296,1400]" data-aspectratio="1.0" data-sizes="auto" tabindex="-1"  alt="" data-srcset="//cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 180w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 360w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 540w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 720w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 900w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1080w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1296w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1400w" sizes="780px" srcset="//cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 180w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 360w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 540w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 720w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 900w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1080w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1296w, //cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957 1400w">
+</div>
+
+<noscript>
+  <img loading="lazy" class="" src="//cdn.shopify.com/s/files/1/0298/5990/5669/files/forlovelsesring-diamanter-hvitt-gull-sevendal.webp?v=1685751957" width="780" height="780" alt="hånd med forlovelsesring hvitt gull diamanter Sevendal">
+</noscript>
+
+        </div>
+      
+
+    </div>
+</div>
+
+</div>

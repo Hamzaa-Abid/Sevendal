@@ -1,0 +1,104 @@
+{%- comment -%}
+  Dynamic section for displaying a billboard
+{%- endcomment -%}
+
+{%- if section.settings.title != blank or section.settings.text != blank %}
+  {%- include 'billboard' with
+    layout: section.settings.layout,
+    full_width: section.settings.full_width,
+    background_color: section.settings.background_color,
+    image: section.settings.image,
+    pre_title: section.settings.pre_title,
+    title: section.settings.title,
+    text: section.settings.text,
+    button_label: section.settings.button_label,
+    button_link: section.settings.button_link
+  -%}
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Billboard",
+    "settings": [
+      {
+        "id": "layout",
+        "type": "select",
+        "label": "Layout",
+        "default": "overlay",
+        "options": [
+          {
+            "value": "overlay",
+            "label": "Overlay"
+          },
+          {
+            "value": "split",
+            "label": "Split"
+          }
+        ]
+      },
+      {
+        "id":        "full_width",
+        "type":      "checkbox",
+        "label":     "Full width",
+        "default":   false
+      },
+      {
+        "id": "background_color",
+        "type": "select",
+        "label": "Background color",
+        "default": "",
+        "options": [
+          {
+            "value": "primary-background",
+            "label": "Primary background color"
+          },
+          {
+            "value": "secondary-background",
+            "label": "Secondary background color"
+          },
+          {
+            "value": "",
+            "label": "None"
+          }
+        ]
+      },
+      {
+        "id": "image",
+        "type": "image_picker",
+        "label": "Image"
+      },
+      {
+        "id": "pre_title",
+        "type": "text",
+        "label": "Pre-title"
+      },
+      {
+        "id": "title",
+        "type": "text",
+        "label": "Heading",
+        "default": "Billboard heading"
+      },
+      {
+        "id": "text",
+        "type": "richtext",
+        "label": "Billboard content"
+      },
+      {
+        "id": "button_label",
+        "type": "text",
+        "label": "Button text"
+      },
+      {
+        "id": "button_link",
+        "type": "url",
+        "label": "Button link"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Billboard",
+        "category": "Billboard"
+      }
+    ]
+  }
+{% endschema %}
